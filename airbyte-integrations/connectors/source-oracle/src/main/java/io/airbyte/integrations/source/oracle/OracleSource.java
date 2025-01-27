@@ -49,6 +49,9 @@ public class OracleSource extends AbstractJdbcSource<JDBCType> implements Source
 
   private static final String ORACLE_JDBC_PARAMETER_DELIMITER = ";";
 
+  private String start_table_name = "a";
+  private String end_table_name = "z";
+
   enum Protocol {
     TCP,
     TCPS
@@ -116,6 +119,13 @@ public class OracleSource extends AbstractJdbcSource<JDBCType> implements Source
       additionalParameters.addAll(List.of(config.get(JdbcUtils.JDBC_URL_PARAMS_KEY).asText().split("&")));
     }
 
+    if (config.get("start_table_name") != null && !config.get("start_table_name").asText().isEmpty()) {
+      start_table_name = config.get(JdbcUtils.JDBC_URL_PARAMS_KEY).asText();
+    }
+    if (config.get("end_table_name") != null && !config.get("end_table_name").asText().isEmpty()) {
+      end_table_name = config.get(JdbcUtils.JDBC_URL_PARAMS_KEY).asText();
+    }
+
     if (!additionalParameters.isEmpty()) {
       final String connectionParams = String.join(ORACLE_JDBC_PARAMETER_DELIMITER, additionalParameters);
       configBuilder.put(JdbcUtils.CONNECTION_PROPERTIES_KEY, connectionParams);
@@ -176,8 +186,16 @@ public class OracleSource extends AbstractJdbcSource<JDBCType> implements Source
     final List<TableInfo<CommonField<JDBCType>>> internals = new ArrayList<>();
     for (final String schema : schemas) {
       LOGGER.debug("Discovering schema: {}", schema);
-      internals.addAll(super.discoverInternal(database, schema));
+      for (TableInfo<CommonField<JDBCType>> tableInfo : super.discoverInternal(database, schema)) {
+        LOGGER.debug("Found table: {}.{}", tableInfo.getNameSpace(), tableInfo.getName());
+        if (tableInfo.getName().charAt(0) >= start_table_name && tableInfo.getName().charAt(0) <= end_table_name ) {
+          internals.add(tableInfo);
+        }
+      }
     }
+
+    // Addin select all table to test
+    new TableInfo<CommonField<JDBCType>>()
 
     for (final TableInfo<CommonField<JDBCType>> info : internals) {
       LOGGER.debug("Found table: {}", info.getName());

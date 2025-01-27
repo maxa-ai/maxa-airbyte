@@ -148,6 +148,18 @@
             }
           }
         ]
+      },
+      "start_table_name": {
+        "title": "Start Table Name",
+        "description": "Additional properties to pass to the JDBC URL string when connecting to the database formatted as 'key=value' pairs separated by the symbol '&'. (example: key1=value1&key2=value2&key3=value3).",
+        "type": "string",
+        "order": 9
+      },
+      "end_table_name": {
+        "title": "End Table name",
+        "description": "Additional properties to pass to the JDBC URL string when connecting to the database formatted as 'key=value' pairs separated by the symbol '&'. (example: key1=value1&key2=value2&key3=value3).",
+        "type": "string",
+        "order": 10
       }
     }
   }
